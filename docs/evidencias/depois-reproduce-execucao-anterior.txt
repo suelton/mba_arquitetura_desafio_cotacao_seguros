@@ -1,0 +1,20 @@
+baseline: 10 requests, one at a time...
+load: 200 requests, 50 at a time...
+
+loadgen · http://quotation-api:8080/quotes · tenant corretora-a · 5 distinct quotes
+
+baseline — 10 requests, 1 in flight, 12:32:46 UTC to 12:32:54 UTC
+  success        10 of 10 (100%)
+  latency        p50 196ms   p95 1.68s   p99 1.68s   max 1.68s
+  throughput     1.2 req/s in 8.40s
+
+load — 200 requests, 50 in flight, 12:32:54 UTC to 12:32:55 UTC
+  success        200 of 200 (100%)
+  latency        p50 6ms   p95 265ms   p99 295ms   max 408ms
+  throughput     457.3 req/s in 437ms
+
+baseline → load
+  p95 latency    1.68s → 265ms   0.2x
+  max latency    1.68s → 408ms   0.2x
+  success        100% → 100%
+  throughput     1.2 → 457.3 req/s

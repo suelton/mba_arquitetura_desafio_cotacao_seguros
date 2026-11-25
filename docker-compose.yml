@@ -46,12 +46,22 @@ services:
       # escrever uma linha para ver o trace da requisicao no Jaeger. Para desligar: OTEL_SDK_DISABLED=true.
       OTEL_SERVICE_NAME: quotation-api
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector:4317"
+      # Resiliencia na fronteira com as parceiras: cada valor e defendido em docs/sad.md (secao 4).
+      REDIS_ADDR: "redis:6379"
+      PARTNER_TIMEOUT_MS: "2000"
+      BREAKER_CONSECUTIVE_FAILURES: "5"
+      BREAKER_OPEN_SECONDS: "10"
+      BREAKER_HALF_OPEN_MAX: "2"
+      CACHE_TTL_SECONDS: "300"
+      CACHE_STALE_SECONDS: "3600"
     depends_on:
       partner-slow:
         condition: service_healthy
       partner-flaky:
         condition: service_healthy
       partner-degrading:
+        condition: service_healthy
+      redis:
         condition: service_healthy
       # service_started, e nao service_healthy: o exportador conecta preguicosamente e reconecta
       # sozinho. Amarrar a API a saude do Collector seria dar a observabilidade o poder de derrubar

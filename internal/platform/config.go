@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
+	"time"
 )
 
 type Config struct {
@@ -12,6 +14,9 @@ type Config struct {
 	Partners  []Partner
 	Tenants   []string
 	Telemetry Telemetry
+	// Resilience e Cache: decisões de docs/sad.md (seção 4); cada default tem a defesa lá.
+	Resilience Resilience
+	Cache      Cache
 }
 
 type Partner struct {
@@ -25,6 +30,19 @@ type Telemetry struct {
 	Enabled     bool
 }
 
+type Resilience struct {
+	PartnerTimeout     time.Duration // teto de espera por parceira; o estouro conta como falha no breaker
+	BreakerFailures    uint32        // falhas consecutivas que abrem o circuito
+	BreakerOpenFor     time.Duration // quanto o circuito fica aberto antes de passar a meio aberto
+	BreakerHalfOpenMax uint32        // sondas admitidas no meio aberto; todas com sucesso fecham o circuito
+}
+
+type Cache struct {
+	Addr     string        // vazio desliga o cache
+	TTL      time.Duration // vida "fresca" da cotação
+	StaleTTL time.Duration // por quanto tempo além do TTL a cotação ainda serve de fallback
+}
+
 const defaultEndpoints = "partner-slow=http://localhost:9001," +
 	"partner-flaky=http://localhost:9002," +
 	"partner-degrading=http://localhost:9003"
@@ -34,6 +52,9 @@ const defaultTenants = "corretora-a,corretora-b"
 const defaultCollector = "http://localhost:4317"
 
 const defaultServiceName = "quotation-api"
+
+// maxCacheSeconds é o teto comercial do cenário: as seguradoras honram o prêmio por 24 horas.
+const maxCacheSeconds = 24 * 60 * 60
 
 func LoadConfig(env func(string) string) (Config, error) {
 	cfg := Config{Port: text(env, "PORT", "8080")}
@@ -48,7 +69,66 @@ func LoadConfig(env func(string) string) (Config, error) {
 	if cfg.Telemetry, err = parseTelemetry(env); err != nil {
 		return Config{}, err
 	}
+	if cfg.Resilience, err = parseResilience(env); err != nil {
+		return Config{}, err
+	}
+	if cfg.Cache, err = parseCache(env); err != nil {
+		return Config{}, err
+	}
 	return cfg, nil
+}
+
+func parseResilience(env func(string) string) (Resilience, error) {
+	timeout, err := whole(env, "PARTNER_TIMEOUT_MS", 2000)
+	if err != nil {
+		return Resilience{}, err
+	}
+	failures, err := whole(env, "BREAKER_CONSECUTIVE_FAILURES", 5)
+	if err != nil {
+		return Resilience{}, err
+	}
+	openFor, err := whole(env, "BREAKER_OPEN_SECONDS", 10)
+	if err != nil {
+		return Resilience{}, err
+	}
+	probes, err := whole(env, "BREAKER_HALF_OPEN_MAX", 2)
+	if err != nil {
+		return Resilience{}, err
+	}
+	return Resilience{
+		PartnerTimeout:     time.Duration(timeout) * time.Millisecond,
+		BreakerFailures:    uint32(failures),
+		BreakerOpenFor:     time.Duration(openFor) * time.Second,
+		BreakerHalfOpenMax: uint32(probes),
+	}, nil
+}
+
+func parseCache(env func(string) string) (Cache, error) {
+	ttl, err := whole(env, "CACHE_TTL_SECONDS", 300)
+	if err != nil {
+		return Cache{}, err
+	}
+	stale, err := whole(env, "CACHE_STALE_SECONDS", 3600)
+	if err != nil {
+		return Cache{}, err
+	}
+	if ttl+stale > maxCacheSeconds {
+		return Cache{}, fmt.Errorf("CACHE_TTL_SECONDS + CACHE_STALE_SECONDS = %d exceeds the 24h commercial ceiling (%d s)", ttl+stale, maxCacheSeconds)
+	}
+	return Cache{
+		Addr:     strings.TrimSpace(text(env, "REDIS_ADDR", "localhost:6379")),
+		TTL:      time.Duration(ttl) * time.Second,
+		StaleTTL: time.Duration(stale) * time.Second,
+	}, nil
+}
+
+// whole lê um inteiro positivo; zero ou negativo nunca é um parâmetro válido aqui.
+func whole(env func(string) string, key string, fallback int) (int, error) {
+	n, err := strconv.Atoi(text(env, key, strconv.Itoa(fallback)))
+	if err != nil || n <= 0 {
+		return 0, fmt.Errorf("%s: %q is not a positive integer", key, env(key))
+	}
+	return n, nil
 }
 
 func parseTelemetry(env func(string) string) (Telemetry, error) {

@@ -1,0 +1,3 @@
+consulta: sum(rate(quotation_cache_requests_total{tenant_id="corretora-b",result="hit"}[30s])) / sum(rate(quotation_cache_requests_total{tenant_id="corretora-b"}[30s]))
+janela: ultimos 150 s (2026-11-25 12:39:47Z a 2026-11-25 12:42:17Z)
+passo: 5s

@@ -13,6 +13,10 @@ const TenantHeader = "X-Tenant-Id"
 
 const requestLimit = 1 << 20
 
+// retryAfterSeconds é o tempo em aberto do breaker (BREAKER_OPEN_SECONDS): antes disso a corretora
+// tentaria de novo contra um circuito ainda aberto.
+const retryAfterSeconds = "10"
+
 type API struct {
 	service *Service
 	tenants map[string]bool
@@ -66,10 +70,25 @@ func (a *API) quote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("X-Tenant-Id", tenant)
+	if response.Degraded {
+		w.Header().Set("X-Quote-Degraded", "true")
+	}
 	platform.WriteJSON(w, http.StatusOK, response)
 }
 
 func (a *API) respondPartnerFailure(w http.ResponseWriter, err error) {
+	var unavailable *UnavailableError
+	if errors.As(err, &unavailable) {
+		// Recusa explícita (fallback): nenhuma parceira respondeu e não há cotação anterior.
+		w.Header().Set("Retry-After", retryAfterSeconds)
+		platform.WriteJSON(w, http.StatusServiceUnavailable, map[string]any{
+			"error":            "no partner quote available",
+			"degraded":         true,
+			"missing_partners": unavailable.Missing,
+		})
+		return
+	}
+
 	var failure *partner.Error
 	if errors.As(err, &failure) {
 		platform.WriteJSON(w, http.StatusBadGateway, platform.ErrorBody{

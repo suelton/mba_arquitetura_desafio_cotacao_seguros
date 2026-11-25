@@ -1,0 +1,13 @@
+
+load: 400 requests, 2 at a time...
+
+loadgen · http://quotation-api:8080/quotes · tenant corretora-b · 40 distinct quotes
+
+load — 400 requests, 2 in flight, 12:38:45 UTC to 12:39:19 UTC
+  success        400 of 400 (100%)
+  latency        p50 0ms   p95 1.61s   p99 1.67s   max 1.70s
+  throughput     11.6 req/s in 34.52s
+
+where to look
+  Jaeger         http://localhost:16686 · service quotation-api · operation POST /quotes
+  load window    12:38:45 UTC to 12:39:19 UTC (sort by longest first)

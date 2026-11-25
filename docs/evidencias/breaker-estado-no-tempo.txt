@@ -1,0 +1,3 @@
+consulta: quotation_breaker_state
+janela: ultimos 900 s, terminando em 2026-11-25 12:39:3x UTC (ver .json)
+passo: 5s

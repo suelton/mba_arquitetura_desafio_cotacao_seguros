@@ -1,0 +1,297 @@
+{
+  "data": [
+    {
+      "traceID": "168d563d4d08e00785a2497dfb459855",
+      "spans": [
+        {
+          "traceID": "168d563d4d08e00785a2497dfb459855",
+          "spanID": "75643c34f625d2dc",
+          "operationName": "POST /quotes",
+          "references": [],
+          "startTime": 1795610076254648,
+          "duration": 1381,
+          "tags": [
+            {
+              "key": "client.address",
+              "type": "string",
+              "value": "192.168.16.10"
+            },
+            {
+              "key": "http.request.body.size",
+              "type": "int64",
+              "value": 165
+            },
+            {
+              "key": "http.request.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.response.body.size",
+              "type": "int64",
+              "value": 642
+            },
+            {
+              "key": "http.response.status_code",
+              "type": "int64",
+              "value": 200
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "network.peer.address",
+              "type": "string",
+              "value": "192.168.16.10"
+            },
+            {
+              "key": "network.peer.port",
+              "type": "int64",
+              "value": 37940
+            },
+            {
+              "key": "network.protocol.version",
+              "type": "string",
+              "value": "1.1"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+            },
+            {
+              "key": "otel.scope.version",
+              "type": "string",
+              "value": "0.69.0"
+            },
+            {
+              "key": "quote.degraded",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "quote.missing_partners",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "quote.served_from_cache",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "server.address",
+              "type": "string",
+              "value": "quotation-api"
+            },
+            {
+              "key": "server.port",
+              "type": "int64",
+              "value": 8080
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "tenant_id",
+              "type": "string",
+              "value": "corretora-a"
+            },
+            {
+              "key": "url.path",
+              "type": "string",
+              "value": "/quotes"
+            },
+            {
+              "key": "url.scheme",
+              "type": "string",
+              "value": "http"
+            },
+            {
+              "key": "user_agent.original",
+              "type": "string",
+              "value": "Go-http-client/1.1"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "168d563d4d08e00785a2497dfb459855",
+          "spanID": "8b0fefe335f2a34e",
+          "operationName": "partner.quote",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "168d563d4d08e00785a2497dfb459855",
+              "spanID": "75643c34f625d2dc"
+            }
+          ],
+          "startTime": 1795610076254722,
+          "duration": 398,
+          "tags": [
+            {
+              "key": "cache.result",
+              "type": "string",
+              "value": "hit"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "quotation-api/quotation"
+            },
+            {
+              "key": "partner",
+              "type": "string",
+              "value": "partner-degrading"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "tenant_id",
+              "type": "string",
+              "value": "corretora-a"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "168d563d4d08e00785a2497dfb459855",
+          "spanID": "ead9470c5dbe25d0",
+          "operationName": "partner.quote",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "168d563d4d08e00785a2497dfb459855",
+              "spanID": "75643c34f625d2dc"
+            }
+          ],
+          "startTime": 1795610076254696,
+          "duration": 1287,
+          "tags": [
+            {
+              "key": "cache.result",
+              "type": "string",
+              "value": "hit"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "quotation-api/quotation"
+            },
+            {
+              "key": "partner",
+              "type": "string",
+              "value": "partner-flaky"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "tenant_id",
+              "type": "string",
+              "value": "corretora-a"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        },
+        {
+          "traceID": "168d563d4d08e00785a2497dfb459855",
+          "spanID": "04a8f34495441d38",
+          "operationName": "partner.quote",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "168d563d4d08e00785a2497dfb459855",
+              "spanID": "75643c34f625d2dc"
+            }
+          ],
+          "startTime": 1795610076254714,
+          "duration": 338,
+          "tags": [
+            {
+              "key": "cache.result",
+              "type": "string",
+              "value": "hit"
+            },
+            {
+              "key": "internal.span.format",
+              "type": "string",
+              "value": "otlp"
+            },
+            {
+              "key": "otel.scope.name",
+              "type": "string",
+              "value": "quotation-api/quotation"
+            },
+            {
+              "key": "partner",
+              "type": "string",
+              "value": "partner-slow"
+            },
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "tenant_id",
+              "type": "string",
+              "value": "corretora-a"
+            }
+          ],
+          "logs": [],
+          "processID": "p1",
+          "warnings": null
+        }
+      ],
+      "processes": {
+        "p1": {
+          "serviceName": "quotation-api",
+          "tags": [
+            {
+              "key": "telemetry.sdk.language",
+              "type": "string",
+              "value": "go"
+            },
+            {
+              "key": "telemetry.sdk.name",
+              "type": "string",
+              "value": "opentelemetry"
+            },
+            {
+              "key": "telemetry.sdk.version",
+              "type": "string",
+              "value": "1.44.0"
+            }
+          ]
+        }
+      },
+      "warnings": null
+    }
+  ]
+}

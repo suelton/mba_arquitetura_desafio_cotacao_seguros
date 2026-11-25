@@ -1,0 +1,16 @@
+
+load: 300 requests, 4 at a time...
+
+loadgen ┬À http://quotation-api:8080/quotes ┬À tenant corretora-a ┬À 100 distinct quotes
+
+load ÔÇö 300 requests, 4 in flight, 12:35:23 UTC to 12:36:03 UTC
+  success        300 of 300 (100%)
+  latency        p50 0ms   p95 1.67s   p99 1.69s   max 1.70s
+  throughput     7.5 req/s in 40.21s
+
+where to look
+  Jaeger         http://localhost:16686 ┬À service quotation-api ┬À operation POST /quotes
+  load window    12:35:23 UTC to 12:36:03 UTC (sort by longest first)
+  step by step   docs/roteiro-cenario-de-falha.md
+
+

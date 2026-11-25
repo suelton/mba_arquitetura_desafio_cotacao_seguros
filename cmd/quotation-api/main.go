@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/cache"
 	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/partner"
 	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/platform"
 	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/quotation"
@@ -29,10 +30,30 @@ func main() {
 		log.Fatalf("telemetry: %v", err)
 	}
 
-	api := quotation.NewAPI(
-		quotation.NewService(cfg.Partners, partner.NewClient()),
-		cfg.Tenants,
+	// As métricas de negócio só podem nascer depois de StartTelemetry, que instala o MeterProvider.
+	metrics, err := platform.NewMetrics()
+	if err != nil {
+		log.Fatalf("business metrics: %v", err)
+	}
+
+	client := partner.NewClient(
+		partner.WithTimeout(cfg.Resilience.PartnerTimeout),
+		partner.WithBreaker(partner.BreakerConfig{
+			ConsecutiveFailures: cfg.Resilience.BreakerFailures,
+			OpenFor:             cfg.Resilience.BreakerOpenFor,
+			HalfOpenMax:         cfg.Resilience.BreakerHalfOpenMax,
+		}),
+		partner.WithMetrics(metrics),
 	)
+
+	options := []quotation.Option{quotation.WithFallback(), quotation.WithParallel(), quotation.WithMetrics(metrics)}
+	if cfg.Cache.Addr != "" {
+		store := cache.NewRedis(cfg.Cache.Addr)
+		defer func() { _ = store.Close() }()
+		options = append(options, quotation.WithCache(store, cfg.Cache.TTL, cfg.Cache.StaleTTL))
+	}
+
+	api := quotation.NewAPI(quotation.NewService(cfg.Partners, client, options...), cfg.Tenants)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,
@@ -53,8 +74,10 @@ func main() {
 		}
 	}()
 
-	log.Printf("quotation-api listening on %s | partners=%d brokers=%v",
-		server.Addr, len(cfg.Partners), cfg.Tenants)
+	log.Printf("quotation-api listening on %s | partners=%d brokers=%v timeout=%s breaker=%d falhas/%s/%d sondas cache=%q ttl=%s stale=%s",
+		server.Addr, len(cfg.Partners), cfg.Tenants, cfg.Resilience.PartnerTimeout,
+		cfg.Resilience.BreakerFailures, cfg.Resilience.BreakerOpenFor, cfg.Resilience.BreakerHalfOpenMax,
+		cfg.Cache.Addr, cfg.Cache.TTL, cfg.Cache.StaleTTL)
 	if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("server stopped: %v", err)
 	}

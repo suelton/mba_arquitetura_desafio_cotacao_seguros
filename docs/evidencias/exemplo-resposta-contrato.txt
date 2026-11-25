@@ -1,0 +1,6 @@
+1a chamada: 200
+{"tenant_id":"corretora-a","quotes":[{"partner":"partner-slow","quote_id":"partner-slow-d96688d0bdb2cc7c","premium_cents":142755,"currency":"BRL","coverage_cents":3000000,"valid_for_seconds":300,"source":"partner"},{"partner":"partner-flaky","quote_id":"partner-flaky-b9f05666b6c9d15c","premium_cents":147172,"currency":"BRL","coverage_cents":9000000,"valid_for_seconds":300,"source":"partner"},{"partner":"partner-degrading","quote_id":"partner-degrading-c67d69508a725f98","premium_cents":161428,"currency":"BRL","coverage_cents":3000000,"valid_for_seconds":300,"source":"partner"}],"degraded":false,"elapsed_ms":1683}
+
+2a chamada (mesmo risco, mesma corretora): 200 X-Quote-Degraded=
+{"tenant_id":"corretora-a","quotes":[{"partner":"partner-slow","quote_id":"partner-slow-d96688d0bdb2cc7c","premium_cents":142755,"currency":"BRL","coverage_cents":3000000,"valid_for_seconds":300,"source":"cache"},{"partner":"partner-flaky","quote_id":"partner-flaky-b9f05666b6c9d15c","premium_cents":147172,"currency":"BRL","coverage_cents":9000000,"valid_for_seconds":300,"source":"cache","age_seconds":1},{"partner":"partner-degrading","quote_id":"partner-degrading-c67d69508a725f98","premium_cents":161428,"currency":"BRL","coverage_cents":3000000,"valid_for_seconds":300,"source":"cache","age_seconds":1}],"degraded":false,"elapsed_ms":0}
+

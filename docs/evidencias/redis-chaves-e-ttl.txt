@@ -1,0 +1,13 @@
+$ docker exec cotacao-redis redis-cli --scan --pattern "quote:v1:*" (primeiras 6 chaves)
+quote:v1:corretora-b:partner-degrading:8998b1dc0a59e5eccae1b84f3da1f04c
+quote:v1:corretora-a:partner-degrading:744f35fc66f0af4db64fd182468e94d3
+quote:v1:corretora-a:partner-slow:cc616d3c59496887f89f44efcd67896a
+quote:v1:corretora-b:partner-flaky:d42400b44915b8f52c09a18985720fa8
+quote:v1:corretora-a:partner-degrading:baadb5361dd324ae18c4565ae17f19aa
+quote:v1:corretora-a:partner-slow:424ff3f4de21afe79d48259d3b55f775
+$ docker exec cotacao-redis redis-cli TTL <chave corretora-b> (esperado <= 3900 = 300 + 3600)
+3655
+$ docker exec cotacao-redis redis-cli DBSIZE
+502
+$ valor guardado (nao contem CPF nem placa; so a cotacao da parceira e o instante):
+{"quote":{"partner":"partner-degrading","quote_id":"partner-degrading-634b8d1c4abe73b7","premium_cents":153050,"currency":"BRL","coverage_cents":7000000,"valid_for_seconds":300,"source":"partner"},"stored_at":"2026-11-25T12:39:09.86359603Z"}
