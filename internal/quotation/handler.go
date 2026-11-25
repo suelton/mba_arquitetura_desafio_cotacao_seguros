@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/partner"
 	"github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/platform"
@@ -15,11 +17,13 @@ const requestLimit = 1 << 20
 
 // retryAfterSeconds é o tempo em aberto do breaker (BREAKER_OPEN_SECONDS): antes disso a corretora
 // tentaria de novo contra um circuito ainda aberto.
-const retryAfterSeconds = "10"
+const defaultRetryAfter = "10"
 
 type API struct {
 	service *Service
 	tenants map[string]bool
+
+	retryAfter string
 }
 
 func NewAPI(service *Service, tenants []string) *API {
@@ -27,7 +31,13 @@ func NewAPI(service *Service, tenants []string) *API {
 	for _, t := range tenants {
 		known[t] = true
 	}
-	return &API{service: service, tenants: known}
+	return &API{service: service, tenants: known, retryAfter: defaultRetryAfter}
+}
+
+// WithRetryAfter alinha o Retry-After do 503 ao tempo em aberto do breaker (BREAKER_OPEN_SECONDS).
+func (a *API) WithRetryAfter(d time.Duration) *API {
+	a.retryAfter = strconv.Itoa(int(d.Seconds()))
+	return a
 }
 
 func (a *API) Routes() http.Handler {
@@ -80,7 +90,7 @@ func (a *API) respondPartnerFailure(w http.ResponseWriter, err error) {
 	var unavailable *UnavailableError
 	if errors.As(err, &unavailable) {
 		// Recusa explícita (fallback): nenhuma parceira respondeu e não há cotação anterior.
-		w.Header().Set("Retry-After", retryAfterSeconds)
+		w.Header().Set("Retry-After", a.retryAfter)
 		platform.WriteJSON(w, http.StatusServiceUnavailable, map[string]any{
 			"error":            "no partner quote available",
 			"degraded":         true,

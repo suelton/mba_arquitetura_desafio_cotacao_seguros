@@ -261,7 +261,7 @@ Exemplo real (`evidencias/redis-chaves-e-ttl.txt`): `quote:v1:corretora-b:partne
 }
 ```
 
-Mais o cabeçalho `X-Quote-Degraded: true` (só quando `degraded`). `source: "cache"` dentro do TTL **não** é degradação: é a mesma cotação, ainda válida, mais barata. A ordenação por prêmio continua. Sem nenhuma cotação: **503** com `{"error":"no partner quote available","degraded":true,"missing_partners":[…]}` e `Retry-After: 10`; a corretora deve esperar 10 s (o tempo em aberto do breaker) e recotar.
+Mais o cabeçalho `X-Quote-Degraded: true` (só quando `degraded`). `source: "cache"` dentro do TTL **não** é degradação: é a mesma cotação, ainda válida, mais barata. A ordenação por prêmio continua. Sem nenhuma cotação: **503** com `{"error":"no partner quote available","degraded":true,"missing_partners":[…]}` e `Retry-After` derivado de `BREAKER_OPEN_SECONDS` (10 s por padrão: `API.WithRetryAfter`, `TestRetryAfterFollowsTheBreakerOpenTime`); a corretora deve esperar o tempo em aberto do breaker e recotar.
 
 **Consequências.** (+) Disponibilidade deixa de ser o produto das três (RNF-02). (−) A corretora passa a ter de **tratar** `degraded`: um cliente que ignora o campo apresenta uma cotação com uma seguradora a menos, ou vencida, como se fosse completa; por isso o campo é explícito e o 200 não é silencioso (cabeçalho + corpo). (−) Mudança de contrato aditiva: clientes antigos continuam lendo `quotes`. (−) O hit de `stale_cache` apresenta prêmio de até 65 min: cabe à corretora re-validar antes de vender (`age_seconds` > `valid_for_seconds` significa vencido pela regra da própria parceira).
 
@@ -535,6 +535,7 @@ Os hit rates dessa tabela são compatíveis com o TTL de 300 s **porque** vêm d
 | `make test` | `make-test.txt`, `make-test-verbose.txt` | `make test` | — | suíte inteira verde; 75 `PASS`, 0 `FAIL` |
 | `make smoke` | `make-smoke.txt` | `make smoke` | — | os limiares abrem com os defaults |
 | Trace com breaker aberto | `trace-breaker-aberto-curto-circuito.json` | export do Jaeger, tag `breaker.short_circuited=true` | Last Hour | 169 µs; `partner.quote` da `partner-flaky` curto-circuitada e **0** spans `HTTP POST` |
+| Fallback ao vivo (Redis parado, `stale_cache`, 503) | `fallback-redis-fora-ao-vivo.txt` | `docker stop` do Redis/parceiras + `POST /quotes` (TTL=5 s só nesta sessão) | — | RF-07 e RF-08 confirmados contra o ambiente, não só em teste unitário |
 | Trace servido de cache | `trace-servido-de-cache.json` | export do Jaeger, tag `quote.served_from_cache=true` | Last Hour | 1,4 ms; três `partner.quote` com `cache.result=hit`, 0 spans de saída |
 | Estado do breaker | `breaker-estado-no-tempo.png/.json/.txt` | `quotation_breaker_state` | 900 s | `partner-degrading` e `partner-flaky`: 0 → 2 → 1 → 0 |
 | Hit rate | `cache-hit-rate.png/.json/.txt` | `sum(rate(quotation_cache_requests_total{tenant_id="corretora-b",result="hit"}[30s])) / sum(rate(quotation_cache_requests_total{tenant_id="corretora-b"}[30s]))` | 150 s | a curva sobe de 0 a ≈ 95 % enquanto o cache aquece (15 riscos recotados ao acaso) |

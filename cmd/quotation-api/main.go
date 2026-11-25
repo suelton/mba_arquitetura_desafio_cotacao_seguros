@@ -53,7 +53,8 @@ func main() {
 		options = append(options, quotation.WithCache(store, cfg.Cache.TTL, cfg.Cache.StaleTTL))
 	}
 
-	api := quotation.NewAPI(quotation.NewService(cfg.Partners, client, options...), cfg.Tenants)
+	api := quotation.NewAPI(quotation.NewService(cfg.Partners, client, options...), cfg.Tenants).
+		WithRetryAfter(cfg.Resilience.BreakerOpenFor)
 
 	server := &http.Server{
 		Addr:              ":" + cfg.Port,

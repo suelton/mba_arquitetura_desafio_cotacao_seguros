@@ -1,0 +1,12 @@
+# Verificacao ao vivo. Sessao com CACHE_TTL_SECONDS=5 (variacao declarada, so para nao esperar 300 s); demais parametros nos defaults. API em localhost:18080 (portas +10000 por conflito de portas).
+1) aquecimento (ABC0001):
+status=200 retry-after= degraded=False missing= sources=partner-flaky:partner: partner-degrading:partner: partner-slow:partner: wall_ms=1706
+2) Redis PARADO (docker stop cotacao-redis), risco novo ABC0002 -> espera 200 com source=partner:
+status=200 retry-after= degraded=False missing= sources=partner-slow:partner: partner-degrading:partner: partner-flaky:partner: wall_ms=1891
+3) aquecer ABC0003, esperar 7 s (> TTL 5 s), parar partner-slow e repetir -> espera stale_cache da partner-slow + degraded=True:
+status=200 retry-after= degraded=False missing= sources=partner-slow:partner: partner-flaky:partner: partner-degrading:partner: wall_ms=1643
+status=200 retry-after= degraded=True missing= sources=partner-slow:stale_cache:9 partner-flaky:stale_cache:9 partner-degrading:partner: wall_ms=2015
+4) as tres paradas, risco novo ABC0004 -> espera 503 com Retry-After=10:
+status=503 retry-after=10 degraded=True missing=partner-slow,partner-flaky,partner-degrading sources=:: wall_ms=2014
+5) ABC0003 (vencido no cache) com as tres paradas -> espera 200 so com stale_cache:
+status=200 retry-after= degraded=True missing= sources=partner-slow:stale_cache:13 partner-flaky:stale_cache:15 partner-degrading:cache:4 wall_ms=793
