@@ -365,7 +365,7 @@ Sem nenhuma `Option`, `quotation.NewService` continua sendo o serviço original 
 | defaults == SAD; teto de 24 h | `internal/platform/config_resilience_test.go` |
 | os limiares abrem com os defaults do cenário | `make smoke` |
 
-Saída: `evidencias/make-test.txt`, `make-test-verbose.txt` (75 `PASS`, 0 `FAIL`, 0 `SKIP`) e `make-smoke.txt`.
+Saída: `evidencias/make-test.txt`, `make-test-verbose.txt` (`ok` nos 6 pacotes com teste, 77 `PASS`, 0 `FAIL`, 0 `SKIP`) e `make-smoke.txt`.
 
 ### 5.2 Decisão D-4 — Onde roda
 
@@ -532,7 +532,7 @@ Os hit rates dessa tabela são compatíveis com o TTL de 300 s **porque** vêm d
 | Evidência | Arquivo | Comando / consulta | Janela | Legenda |
 |---|---|---|---|---|
 | Relatório antes/depois | `antes-reproduce.txt`, `depois-reproduce.txt`, `depois-reproduce-execucao-anterior.txt` | `make down && make reproduce` (idem no depois) | execuções de 12:22 e 12:34 UTC | p95 da carga 8,00 s → 2,11 s; sucesso 60 % → 100 %; vazão 8,0 → 94,1 req/s |
-| `make test` | `make-test.txt`, `make-test-verbose.txt` | `make test` | — | suíte inteira verde; 75 `PASS`, 0 `FAIL` |
+| `make test` | `make-test.txt`, `make-test-verbose.txt` | `make test` | — | suíte inteira verde; `ok` nos 6 pacotes com teste, 77 `PASS`, 0 `FAIL` |
 | `make smoke` | `make-smoke.txt` | `make smoke` | — | os limiares abrem com os defaults |
 | Trace com breaker aberto | `trace-breaker-aberto-curto-circuito.json` | export do Jaeger, tag `breaker.short_circuited=true` | Last Hour | 169 µs; `partner.quote` da `partner-flaky` curto-circuitada e **0** spans `HTTP POST` |
 | Fallback ao vivo (Redis parado, `stale_cache`, 503) | `fallback-redis-fora-ao-vivo.txt` | `docker stop` do Redis/parceiras + `POST /quotes` (TTL=5 s só nesta sessão) | — | RF-07 e RF-08 confirmados contra o ambiente, não só em teste unitário |

@@ -9,15 +9,15 @@
 --- PASS: TestReportWithoutBaselineDoesNotCompare (0.00s)
 --- PASS: TestUnreachableEnvironmentIsNotAResult (0.00s)
 --- PASS: TestDurationsAreReadableInTheReport (0.00s)
---- PASS: TestLoadPhaseHoldsTheConfiguredNumberOfRequestsInFlight (0.16s)
+--- PASS: TestLoadPhaseHoldsTheConfiguredNumberOfRequestsInFlight (0.17s)
 --- PASS: TestBaselinePhaseSendsOneRequestAtATime (0.05s)
 --- PASS: TestFailureKeepsItsLatencyAndBlamesThePartner (0.05s)
 --- PASS: TestRequestBeyondTheTimeoutIsAFailureOfTheRun (0.50s)
 --- PASS: TestRequestsCutShortByTheEndOfTheRunAreNotCounted (1.00s)
---- PASS: TestEveryRequestIdentifiesTheBrokerAndRotatesTheQuotes (0.01s)
+--- PASS: TestEveryRequestIdentifiesTheBrokerAndRotatesTheQuotes (0.02s)
 --- PASS: TestGeneratedQuoteIsAValidRequest (0.00s)
 PASS
-ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd/loadgen	2.505s
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd/loadgen	1.932s
 --- PASS: TestFailuresAreIdenticalAcrossRuns (0.00s)
 --- PASS: TestDifferentSeedChangesTheSequence (0.00s)
 --- PASS: TestObservedFailureRateStaysCloseToTheConfiguredOne (0.00s)
@@ -42,9 +42,11 @@ ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd
 --- PASS: TestHealthzIgnoresTheProfile (0.00s)
 --- PASS: TestConfigExposesTheEffectiveProfile (0.00s)
 PASS
-ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd/partner-mock	0.172s
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd/partner-mock	0.141s
 ?   	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd/quotation-api	[no test files]
-?   	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/cache	[no test files]
+--- PASS: TestUnreachableRedisIsAMissNotAnError (0.02s)
+PASS
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/cache	0.153s
 --- PASS: TestBreakerOpensAfterConsecutiveFailuresAndStopsCallingThePartner (0.01s)
 --- PASS: TestBreakerHalfOpenClosesOnProbesAndReopensOnFailure (0.02s)
 --- PASS: TestTimeoutCountsAsFailureForTheBreaker (0.04s)
@@ -54,7 +56,7 @@ ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/cmd
 --- PASS: TestQuoteFailsOnUnreadableResponse (0.00s)
 --- PASS: TestQuoteHonoursCancellation (0.00s)
 PASS
-ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/partner	0.232s
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/partner	0.231s
 --- PASS: TestResilienceAndCacheDefaultsAreTheSADValues (0.00s)
 --- PASS: TestCacheCannotExceedTheCommercialCeiling (0.00s)
 --- PASS: TestDefaultConfigPointsAtTheComposeEnvironment (0.00s)
@@ -65,7 +67,7 @@ ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/int
 --- PASS: TestTelemetryOffSkipsEndpointValidation (0.00s)
 --- PASS: TestInvalidConfigFails (0.00s)
 PASS
-ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/platform	0.062s
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/platform	0.031s
 --- PASS: TestQuotesReturnsAggregatedQuotes (0.00s)
 --- PASS: TestQuotesRejectsRequestWithoutTenant (0.00s)
 --- PASS: TestQuotesRejectsUnknownBroker (0.00s)
@@ -79,9 +81,10 @@ ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/int
 --- PASS: TestFallbackServesStaleAndReportsMissingPartners (0.00s)
 --- PASS: TestAllPartnersDownWithoutCacheIsAnExplicitRefusal (0.00s)
 --- PASS: TestParallelAggregationOverlapsThePartners (0.04s)
+--- PASS: TestRetryAfterFollowsTheBreakerOpenTime (0.00s)
 --- PASS: TestQuoteAggregatesTheThreePartnersSortedByPremium (0.00s)
 --- PASS: TestQuoteCallsThePartnersSerially (0.12s)
 --- PASS: TestOnePartnerDownBringsDownTheWholeRequest (0.00s)
 --- PASS: TestBrokerGoesInThePartnerRequest (0.00s)
 PASS
-ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/quotation	0.237s
+ok  	github.com/GuilhermeOliveira591/mba_arquitetura_desafio_cotacao_seguros/internal/quotation	0.273s
